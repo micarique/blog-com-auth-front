@@ -3,9 +3,7 @@ export interface Post {
   titulo: string;
   conteudo: string;
   createdAt: string;
-  autor: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  autor: string;
+  autorId: string;
+  autorEmail: string;
 }
