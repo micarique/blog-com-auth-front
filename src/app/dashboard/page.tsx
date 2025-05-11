@@ -1,24 +1,28 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/services/api'
 import { Post } from '@/types/Post'
+import { useConfirmDelete } from '@/hooks/useConfirmDelete'
+import ConfirmDeletePopup from '@/components/ConfirmDeletePopup'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Usando o hook de confirmação de exclusão
+  const { isOpen, open, close, confirm } = useConfirmDelete()
 
-  // Verifica token e busca posts do usuário autenticado
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-      return
-    }
+    const fetchPosts = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        router.push('/')
+        return
+      }
 
-    const fetchUserPosts = async () => {
       try {
         const res = await api.get('/posts/me', {
           headers: { Authorization: `Bearer ${token}` },
@@ -26,14 +30,36 @@ export default function DashboardPage() {
         setPosts(res.data)
       } catch (err) {
         console.error('Erro ao buscar posts do usuário:', err)
-        router.push('/login')
+        router.push('/')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchUserPosts()
+    fetchPosts()
   }, [router])
+
+  const handleDelete = async () => {
+    const postIdToDelete = confirm()
+    if (!postIdToDelete) return
+
+    try {
+      const token = localStorage.getItem('token')
+      await api.delete(`/posts/${postIdToDelete}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setPosts(posts.filter((p) => p.id !== postIdToDelete))
+      close()
+    } catch (err) {
+      console.error('Erro ao deletar post:', err)
+      alert('Erro ao excluir. Tente novamente.')
+      close()
+    }
+  }
+
+  const handleCancel = () => {
+    close()
+  }
 
   if (loading) return <p className="text-center mt-10">Carregando...</p>
 
@@ -42,12 +68,20 @@ export default function DashboardPage() {
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Meus Posts</h1>
+          <div className="flex justify-between gap-x-4">
           <button
-            onClick={() => router.push('/dashboard/new')}
+            onClick={() => router.push('/dashboard/newPost')}
             className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
           >
             Novo Post
           </button>
+          <button
+            onClick={() => router.push('/posts')}
+            className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
+          >
+            Voltar
+          </button>
+          </div>
         </header>
 
         {posts.length === 0 ? (
@@ -68,13 +102,13 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => router.push(`/dashboard/edit/${post.id}`)}
+                    onClick={() => router.push(`/dashboard/editPost/${post.id}`)}
                     className="text-blue-600 hover:underline text-sm"
                   >
                     Editar
                   </button>
                   <button
-                    onClick={() => handleDelete(post.id)}
+                    onClick={() => open(post.id)}
                     className="text-red-600 hover:underline text-sm"
                   >
                     Excluir
@@ -85,22 +119,13 @@ export default function DashboardPage() {
           </ul>
         )}
       </div>
+
+      {/* Componente de confirmação de exclusão */}
+      <ConfirmDeletePopup
+        isOpen={isOpen}
+        onConfirm={handleDelete}
+        onCancel={handleCancel}
+      />
     </main>
   )
-
-  async function handleDelete(id: number) {
-    const confirm = window.confirm('Tem certeza que deseja excluir este post?')
-    if (!confirm) return
-
-    try {
-      const token = localStorage.getItem('token')
-      await api.delete(`/posts/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      setPosts(posts.filter((p) => p.id !== id))
-    } catch (err) {
-      console.error('Erro ao deletar post:', err)
-      alert('Erro ao excluir. Tente novamente.')
-    }
-  }
 }
