@@ -1,33 +1,74 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import api from '@/services/api'
-import { Post } from '@/types/Post'
-import PostCard from '@/components/PostCard'
-import Header from '@/components/Header'
-export default function HomePage() {
-  const [posts, setPosts] = useState<Post[]>([])
+import LoginForm from '@/components/LoginForm'
+import RegisterForm from '@/components/RegisterForm'
+import AlertModal from '@/components/AlertModal'
 
-  useEffect(() => {
-    api.get('/posts')
-      .then(res => setPosts(res.data))
-      .catch(err => console.error('Erro ao buscar posts:', err))
-  }, [])
+export default function HomePage() {
+  const router = useRouter()
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
+  const handleLogin = async (email: string, password: string) => {
+    setError('')
+    setLoading(true)
+    try {
+      const res = await api.post('/auth/login', { email, password })
+      localStorage.setItem('token', res.data.token)
+      router.push('/posts')
+    } catch (err) {
+      setError('Erro ao fazer login. Verifique suas credenciais.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegister = async (name: string, email: string, password: string) => {
+    setError('')
+    setLoading(true)
+    try {
+      await api.post('/auth/register', { name, email, password })
+      setShowAlert(true)
+    } catch (err) {
+      setError('Erro ao cadastrar. O e-mail pode já estar em uso.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <main className="min-h-screen bg-white text-zinc-900 p-4 md:p-8">
-        <Header />
-      <section className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-4 mx-auto text-center">Bem-vindo ao Blog Autêntico</h1>
-        <p className="text-zinc-600 text-lg text-center">
-          Explore publicações inspiradoras feitas por autores autênticos.
+    <>
+    <AlertModal
+            show={showAlert}
+            setShow={setShowAlert}
+            message="Cadastro realizado com sucesso! Faça o login para acessar sua conta."
+            onConfirm={() => router.push('/')}
+          />
+    <main className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center px-4 py-8">
+      <div className="mb-12 text-center">
+        <h1 className="text-4xl font-bold text-zinc-900">CodeSocial</h1>
+        <p className="text-zinc-500 mt-2">
+          Conecte-se com mentes criativas. Compartilhe ideias. Inspire-se.
         </p>
-      </section>
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map(post => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </section>
+      </div>
+
+      {error && <p className="text-red-500 mb-6">{error}</p>}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+        <LoginForm onSubmit={handleLogin} loading={loading} />
+        <RegisterForm onSubmit={handleRegister} loading={loading} />
+      </div>
+
+      <button
+        onClick={() => router.push('/posts')}
+        className="mt-10 text-zinc-900 underline hover:text-zinc-700"
+      >
+        Ver publicações
+      </button>
     </main>
+    </>
   )
 }
