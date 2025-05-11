@@ -1,27 +1,47 @@
 'use client'
 
-import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import AlertModal from './AlertModal' 
 
 export default function Header() {
+  const router = useRouter()
+  const [showAlert, setShowAlert] = useState(false)
+
+  const handleManage = () => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      router.push('/dashboard')
+    } else {
+      setShowAlert(true)
+    }
+  }
+
   return (
-    <header className="w-full bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-      <Link href="/" className="text-xl font-semibold text-zinc-900">
-        Blog 
-      </Link>
-      <div className="space-x-4">
-        <Link
-          href="/login"
-          className="text-zinc-700 hover:text-zinc-900 transition font-medium"
-        >
-          Login
-        </Link>
-        <Link
-          href="/register"
-          className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
-        >
-          Cadastrar
-        </Link>
-      </div>
-    </header>
+    <>
+      <AlertModal
+        show={showAlert}
+        setShow={setShowAlert}
+        message="Você precisa estar logado para acessar suas publicações."
+        onConfirm={() => router.push('/')}
+      />
+      <header className="flex justify-between items-center w-full mx-auto mb-8">
+        <h1 className="text-3xl font-bold text-zinc-800">Publicações</h1>
+        <div className='flex gap-4'>
+          <button
+            onClick={() => router.push('/')}
+            className="bg-zinc-900 text-white px-6 py-3 rounded-lg hover:bg-zinc-800 transition"
+          >
+            Voltar
+          </button>
+          <button
+            onClick={handleManage}
+            className="bg-zinc-900 text-white px-6 py-3 rounded-lg hover:bg-zinc-800 transition ml-auto"
+          >
+            Gerenciar minhas publicações
+          </button>
+        </div>
+      </header>
+    </>
   )
 }
