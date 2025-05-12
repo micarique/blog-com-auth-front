@@ -24,6 +24,20 @@ export default function Header() {
     }
   }
 
+  const handleBack = () => {
+    const currentPath = window.location.pathname
+    if (currentPath === '/posts') {
+      // Se estiver na página /posts, volta para a home
+      router.push('/')
+    } else if (currentPath.startsWith('/posts/')) {
+      // Se estiver em /posts/[id], volta para /posts
+      router.push('/posts')
+    } else {
+      // Caso contrário, volta para a home por padrão
+      router.push('/')
+    }
+  }
+
   return (
     <>
       <AlertModal
@@ -36,7 +50,7 @@ export default function Header() {
         <h1 className="text-3xl font-bold text-zinc-800">Publicações</h1>
         <div className="flex gap-4">
           <button
-            onClick={() => router.push('/')}
+            onClick={handleBack}
             className="bg-zinc-900 text-white px-6 py-3 rounded-lg hover:bg-zinc-800 transition"
           >
             Voltar
