@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import api from '@/services/api'
 import Header from '@/components/Header'
 import { Post } from '@/types/Post'
-import PostCard from '@/components/PostCard'
 import AlertModal from '@/components/AlertModal'
+import PostCard from '@/components/PostCard'
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -17,7 +18,10 @@ export default function PostsPage() {
         const response = await api.get('/posts')
         setPosts(response.data)
       } catch (error) {
+        console.error('Erro ao buscar posts:', error)  // Log para depuração
         setShowModal(true)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -27,9 +31,11 @@ export default function PostsPage() {
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8">
       <Header />
+      
+      {loading && <div className="text-center text-gray-600">Carregando...</div>}
 
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.map(post => (
+        {!loading && posts.map(post => (
           <PostCard key={post.id} post={post} />
         ))}
       </section>
