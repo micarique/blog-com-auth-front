@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import api from '@/services/api'
 import Header from '@/components/Header'
 import { Post } from '@/types/Post'
 import AlertModal from '@/components/AlertModal'
 import PostCard from '@/components/PostCard'
+import Link from 'next/link'
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -36,7 +38,9 @@ export default function PostsPage() {
 
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {!loading && posts.map(post => (
-          <PostCard key={post.id} post={post} />
+          <Link key={post.id} href={`/posts/${post.id}`}>
+            <PostCard post={post} />
+          </Link>
         ))}
       </section>
 
