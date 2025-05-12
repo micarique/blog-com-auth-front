@@ -1,14 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import AlertModal from './AlertModal' 
+import AlertModal from './AlertModal'
 
 export default function Header() {
   const router = useRouter()
   const [showAlert, setShowAlert] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleManage = () => {
+    if (!isClient) return
+
     const token = localStorage.getItem('token')
     if (token) {
       router.push('/dashboard')
@@ -27,7 +34,7 @@ export default function Header() {
       />
       <header className="flex justify-between items-center w-full mx-auto mb-8">
         <h1 className="text-3xl font-bold text-zinc-800">Publicações</h1>
-        <div className='flex gap-4'>
+        <div className="flex gap-4">
           <button
             onClick={() => router.push('/')}
             className="bg-zinc-900 text-white px-6 py-3 rounded-lg hover:bg-zinc-800 transition"
