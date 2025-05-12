@@ -48,11 +48,15 @@ Copiar
 Editar
 frontend/
 ├── app/
-│   ├── page.tsx             # Tela principal (login/cadastro)
-│   ├── posts/page.tsx       # Feed público
-│   ├── dashboard/           # CRUD de posts
-├── services/api.ts          # Axios configurado
-├── types/Post.ts            # Tipagem dos posts
+│   ├── page.tsx                     # Tela principal (login/cadastro)
+│   ├── posts/page.tsx               # Feed público
+|        ├── [id]/page.tsx           # post completo
+│   ├── dashboard/page.tsx           # CRUD de posts
+|        ├── editPost[id]/page.tsx   # Formulário de edição de post
+|        ├── newPost/page.tsx        # Formulário de criação de post
+├── services/api.ts                  # Axios configurado
+├── types/Post.ts                    # Tipagem dos posts
+
 🤝 Integração com o Back-end
 As rotas consomem a API Java Spring Boot hospedada em http://localhost:8080. Endpoints seguros requerem token JWT no header Authorization: Bearer.
 
