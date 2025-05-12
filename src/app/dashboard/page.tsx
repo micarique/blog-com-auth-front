@@ -70,16 +70,16 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold">Meus Posts</h1>
           <div className="flex justify-between gap-x-4">
           <button
-            onClick={() => router.push('/dashboard/newPost')}
-            className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
-          >
-            Novo Post
-          </button>
-          <button
             onClick={() => router.push('/posts')}
             className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
           >
             Voltar
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/newPost')}
+            className="bg-zinc-900 text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
+          >
+            Novo Post
           </button>
           </div>
         </header>
