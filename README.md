@@ -54,6 +54,8 @@ frontend/
 │   ├── dashboard/page.tsx           # CRUD de posts
 |        ├── editPost[id]/page.tsx   # Formulário de edição de post
 |        ├── newPost/page.tsx        # Formulário de criação de post
+├── components/                      # Componentes reutilizáveis 
+├── hooks/                           # Custom hooks
 ├── services/api.ts                  # Axios configurado
 ├── types/Post.ts                    # Tipagem dos posts
 
